@@ -2,6 +2,9 @@ pub mod kmp;
 pub mod raita;
 pub mod simple;
 
+#[cfg(test)]
+mod test;
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Algorithm {
     KMP,
@@ -37,8 +40,45 @@ pub trait SliceFind<T: PartialEq>: AsRef<[T]> {
         self.find(needle).is_some()
     }
 }
-
 impl<T: PartialEq> SliceFind<T> for Vec<T> {}
 impl<T: PartialEq> SliceFind<T> for [T] {}
 impl<T: PartialEq, const N: usize> SliceFind<T> for [T; N] {}
+
+pub trait SliceReplace<T: PartialEq + Clone>: SliceFind<T> {
+    fn replace(&self, old: impl AsRef<[T]>, new: impl AsRef<[T]>) -> Vec<T> {
+        let mut this = self.as_ref().to_vec();
+        let old = old.as_ref();
+        let new = new.as_ref();
+
+        if old == new {
+            return this;
+        }
+
+        let old_len = old.len();
+        let new_len = new.len();
+
+        let mut part = &mut this[..];
+        let mut maybe_pos = part.find(old);
+        while let Some(pos) = maybe_pos {
+            if new_len == old_len {
+                part[pos .. pos+new_len].clone_from_slice(new);
+                part = &mut part[pos+new_len ..];
+            } else {
+                let prefix = &part[..pos];
+                let suffix = &part[pos+old_len ..];
+                this = prefix.iter().chain(new.iter()).chain(suffix).map(|x| { x.to_owned() }).collect();
+                part = &mut this[pos+new_len ..];
+            }
+
+            maybe_pos = part.find(old);
+        }
+
+        this
+    }
+
+}
+
+impl<T: PartialEq+Clone> SliceReplace<T> for Vec<T> {}
+impl<T: PartialEq+Clone> SliceReplace<T> for [T] {}
+impl<T: PartialEq+Clone, const N: usize> SliceReplace<T> for [T; N] {}
 

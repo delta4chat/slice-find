@@ -1,12 +1,10 @@
-use slice_find::*;
+use crate::*;
 
 use core::time::Duration;
 
 use std::time::Instant;
 use std::collections::hash_map::RandomState;
 use std::hash::{BuildHasher, Hasher};
-
-use std::thread;
 
 fn rand_bytes(size: usize) -> Vec<u8> {
     let mut out = Vec::new();
@@ -25,7 +23,7 @@ fn stress_one(algo: Algorithm) -> Vec<Duration> {
             let mut x = [0, 0];
             x.copy_from_slice(&rand_bytes(2));
             x
-        }) % 10240) as usize);
+        }) % 4096) as usize);
     let haystack = rand_bytes(rand_len);
     let needles: Vec<&[u8]> = haystack.windows(haystack.len()/40).collect();
 
@@ -68,13 +66,38 @@ fn stress(name: &str, algo: Algorithm) {
     println!("{name:09}: average used time in single operation = {} | total used time = {:?}", avg, Duration::from_secs_f64(sum));
 }
 
-fn main() {
-    let mut thrs = Vec::new();
-    thrs.push(thread::spawn(|| { stress("KMP", Algorithm::KMP) }));
-    thrs.push(thread::spawn(|| { stress("Raita", Algorithm::Raita) }));
-    thrs.push(thread::spawn(|| { stress("Simple", Algorithm::Simple) }));
-    for thr in thrs.into_iter() {
-        let _r = thr.join();
-        //eprintln!("{_r:?}");
-    }
+#[test]
+fn test_algo_kmp() {
+    stress("KMP", Algorithm::KMP);
 }
+
+#[test]
+fn test_algo_raita() {
+    stress("Raita", Algorithm::Raita)
+}
+
+#[test]
+fn test_algo_simple() {
+    stress("Simple", Algorithm::Simple)
+}
+
+#[test]
+fn test_trait_find() {
+    let a = b"the program prints hello world to stdout";
+    assert_eq!(a.find(b"program"), Some(4));
+    assert_eq!(a.find(b"the"), Some(0));
+    assert_eq!(a.find(b"stdout"), Some(34));
+    assert_eq!(a.find(b""), Some(0));
+    assert_eq!(a.find(a), Some(0));
+    assert_eq!(a.find(b"apple"), None);
+}
+
+#[test]
+fn test_trait_replace() {
+    let a = b"abcdefg";
+    assert_eq!(a.replace("ab", "io"), b"iocdefg");
+    assert_eq!(a.replace("ef", "z"), b"abcdzg");    
+    assert_eq!(a.replace("cd", "foo"), b"abfooefg");
+    assert_eq!(a.replace("fg", "fe"), b"abcdefe");
+}
+
