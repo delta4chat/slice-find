@@ -1,0 +1,21 @@
+[package]
+name = "slice-find"
+version = "0.0.1"
+authors = ["Delta4 <delta4chat@gmx.com>"]
+edition = "2021"
+description="SliceFind trait add .find() method (for search sub-slice in slice) to Vec, slice, fixed-length-slice in standard library"
+license="MIT"
+repository="https://github.com/delta4chat/slice-find"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+[profile.release]
+panic = "unwind"
+opt-level = 3
+overflow-checks = true
+debug = 2
+lto = true
+codegen-units = 1
+
