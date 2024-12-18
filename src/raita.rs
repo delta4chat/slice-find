@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use crate::*;
 
 /// https://en.wikipedia.org/wiki/Raita_algorithm
 pub fn slice_find<T: Ord>(haystack: &[T], needle: &[T]) -> Option<usize> {

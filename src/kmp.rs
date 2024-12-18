@@ -1,3 +1,5 @@
+use crate::*;
+
 // thanks to https://docs.rs/kmp
 pub fn slice_find<T: PartialEq>(haystack: &[T], needle: &[T]) -> Option<usize> {
     let haystack_len = haystack.len();

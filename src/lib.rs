@@ -1,3 +1,11 @@
+#![cfg_attr(not(test), no_std)]
+
+#![forbid(unsafe_code)]
+
+extern crate alloc;
+pub(crate) use alloc::vec::Vec;
+pub(crate) use alloc::collections::BTreeMap;
+
 pub mod kmp;
 pub mod raita;
 pub mod simple;
@@ -66,7 +74,7 @@ pub trait SliceReplace<T: PartialEq + Clone>: SliceFind<T> {
             } else {
                 let prefix = &part[..pos];
                 let suffix = &part[pos+old_len ..];
-                this = prefix.iter().chain(new.iter()).chain(suffix).map(|x| { x.to_owned() }).collect();
+                this = prefix.iter().chain(new.iter()).chain(suffix).cloned().collect();
                 part = &mut this[pos+new_len ..];
             }
 
